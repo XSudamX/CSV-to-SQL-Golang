@@ -20,15 +20,19 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"database/sql"
 	"encoding/csv"
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // set global variables
@@ -376,18 +380,30 @@ func main() {
 	fmt.Println("\nSTATS\n\tCSV file", csvFileName, "has", lineCount, "lines with", csvFields, "CSV fields per record")
 	fmt.Println("\tThe conversion took", end.Sub(start), "to run.\n\nAll is well.\n")
 
-	//defer pushtodb()
+	defer pushtodb()
 }
 
-/* func pushtodb() {
-	query, err := ioutil.ReadFile("SQL-Book1.sql")
+func pushtodb() {
+
+	db, err := sql.Open("mysql", "sudam:sudam@tcp(192.168.148.129:3306)/test")
 	if err != nil {
-		panic(err)
+		panic(err.Error())
+		fmt.Println("Failed connec")
 	}
-	if _, err := db.Exec(query); err != nil {
-		panic(err)
+	defer db.Close()
+	file, err := ioutil.ReadFile("SQL-Book1.sql")
+
+	if err != nil {
+		// handle error
 	}
-} */
+
+	requests := strings.Split(string(file), ";")
+
+	for _, request := range requests {
+		result, err := db.Exec(request)
+		fmt.Println(result, err)
+	}
+}
 
 //
 //  cleanHeader receives a string and removes the characters: space | - + @ # / \ : ( ) '
