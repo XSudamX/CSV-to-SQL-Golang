@@ -33,6 +33,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 // set global variables
@@ -169,7 +170,7 @@ func main() {
 	// get the command line args passed to the program
 
 	csvFileName = "Book1.csv"
-	tableName = "ATDB"
+	tableName = "ExampleTable1"
 
 	flag.Parse()
 	// confirm debug mode is enabled
@@ -292,6 +293,8 @@ func main() {
 		// TODO : - add option to skip this line if user is adding data to an existing table?
 		if lineCount == 0 {
 			strbuffer.WriteString("PRAGMA foreign_keys=OFF;\nBEGIN TRANSACTION;\nCREATE TABLE " + tableName + " (")
+			//strbuffer.WriteString("CREATE TABLE " + tableName + " (")
+
 		}
 
 		// if any line except the first one :
@@ -385,7 +388,16 @@ func main() {
 
 func pushtodb() {
 
-	db, err := sql.Open("mysql", "sudam:sudam@tcp(192.168.148.129:3306)/test")
+	/* 	path, err := os.Getwd()
+	   	if err != nil {
+	   		log.Println(err)
+	   	}
+	   	fmt.Println(path) */
+
+	//db, err := sql.Open("mysql", "sudam@localhost:sudam@tcp(192.168.148.129:3306)/test")
+	//db, err := sql.Open("sqlite3", "../../../../../var/lib/phpliteadmin/test")
+	db, err := sql.Open("sqlite3", "/var/lib/phpliteadmin/test")
+	//db, err := sql.Open("sqlite3", "/test.db")
 	if err != nil {
 		panic(err.Error())
 		fmt.Println("Failed connec")
