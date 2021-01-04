@@ -170,7 +170,7 @@ func main() {
 	// get the command line args passed to the program
 
 	csvFileName = "Book1.csv"
-	tableName = "ExampleTable1"
+	tableName = "ExampleTable2"
 
 	flag.Parse()
 	// confirm debug mode is enabled
@@ -293,10 +293,8 @@ func main() {
 		// TODO : - add option to skip this line if user is adding data to an existing table?
 		if lineCount == 0 {
 			strbuffer.WriteString("PRAGMA foreign_keys=OFF;\nBEGIN TRANSACTION;\nCREATE TABLE " + tableName + " (")
-			//strbuffer.WriteString("CREATE TABLE " + tableName + " (")
 
 		}
-
 		// if any line except the first one :
 		// print the start of the SQL insert statement for the record
 		// and  - add to the temp string 'strbuffer'
@@ -386,37 +384,6 @@ func main() {
 	defer pushtodb()
 }
 
-func pushtodb() {
-
-	/* 	path, err := os.Getwd()
-	   	if err != nil {
-	   		log.Println(err)
-	   	}
-	   	fmt.Println(path) */
-
-	//db, err := sql.Open("mysql", "sudam@localhost:sudam@tcp(192.168.148.129:3306)/test")
-	//db, err := sql.Open("sqlite3", "../../../../../var/lib/phpliteadmin/test")
-	db, err := sql.Open("sqlite3", "/var/lib/phpliteadmin/test")
-	//db, err := sql.Open("sqlite3", "/test.db")
-	if err != nil {
-		panic(err.Error())
-		fmt.Println("Failed connec")
-	}
-	defer db.Close()
-	file, err := ioutil.ReadFile("SQL-Book1.sql")
-
-	if err != nil {
-		// handle error
-	}
-
-	requests := strings.Split(string(file), ";")
-
-	for _, request := range requests {
-		result, err := db.Exec(request)
-		fmt.Println(result, err)
-	}
-}
-
 //
 //  cleanHeader receives a string and removes the characters: space | - + @ # / \ : ( ) '
 //  Function is used to clean up the CSV file header fields as they will be used for column table names
@@ -450,4 +417,26 @@ func cleanHeader(headField string) string {
 	// ok - remove any ' and replace with _
 	headField = strings.Replace(headField, "'", "_", -1)
 	return headField
+}
+
+func pushtodb() {
+
+	db, err := sql.Open("sqlite3", "/var/lib/phpliteadmin/test")
+	//db, err := sql.Open("sqlite3", "/test.db")
+	if err != nil {
+		fmt.Println("Failed connection to database", err)
+		panic(err.Error())
+	}
+	defer db.Close()
+
+	file, err := ioutil.ReadFile("SQL-Book1.sql")
+	if err != nil {
+		fmt.Println("Error Creating SQL File")
+	}
+	requests := strings.Split(string(file), ";")
+
+	for _, request := range requests {
+		result, err := db.Exec(request)
+		fmt.Println(result, err)
+	}
 }
